@@ -1,0 +1,52 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Behavioral effects of dog activity
+
+## Load Packages
+```{r, message=FALSE, warning=FALSE, error=FALSE}
+library(tidyverse)
+library(lubridate)
+library(readr)
+```
+
+## Data input
+
+```{r}
+data_set <- read_rds("data/my_data_set.rds")
+glimpse(data_set)
+```
+
+## identifying points with `m/e`  cameras and setting the `date_time` 
+
+```{r}
+data_set <- data_set |> 
+  mutate(
+   m_e= str_detect(station, "\\(m/e\\)"),
+   station = str_remove(station, "\\(m/e\\)"),
+   station = ifelse(station == "NA", NA, as.numeric(station)),
+   date_time = ymd_hms(paste(date, time))
+   )
+glimpse(data_set)
+```
+
+# Quick view of 'capture' frequency 
+
+```{r}
+data_set |> 
+  ggplot(aes(x=date,y=time,color=conservation_unit)) +
+  geom_line() + 
+  geom_point() +
+  facet_wrap(~conservation_unit, scale="free", nrow = 5)
+```
+
