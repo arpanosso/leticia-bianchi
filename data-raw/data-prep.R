@@ -12,6 +12,7 @@ dplyr::glimpse(data_set)
 data_set <- data_set |>
   tidyr::drop_na() |>
   dplyr::mutate(
+    mestre = stringr::str_detect(station, "(m\\/e)"),
     day = as.numeric(stringr::str_split(date,"/",simplify = TRUE)[,1]),
     month = as.numeric(stringr::str_split(date,"/",simplify = TRUE)[,2]),
     year = as.numeric(stringr::str_split(date,"/",simplify = TRUE)[,3]),
@@ -20,3 +21,4 @@ data_set <- data_set |>
 
 # save my data
 readr::write_rds(data_set,"data/my_data_set.rds")
+
