@@ -24,7 +24,7 @@ library(stringr)
 ## Data input
 
 ```{r}
-data_set <- read_rds("data/my_data_set.rds")
+data_set <- read_rds("data/my_data_set_2.rds")
 data_set <- data_set |> 
   mutate(
     species = ifelse(species == "Dasypsu", "Dasypus", species),
@@ -79,9 +79,9 @@ for(i in 1:(nrow(data_set_aux)-1)){
   unit_con <- data_set_aux$conservation_unit[i]
   mestre <- data_set_aux$mestre[i]
   station <- data_set_aux$station[i]
-  if(unit_con == data_set_aux$conservation_unit[i+1] &
+  if((unit_con == data_set_aux$conservation_unit[i+1] &
      mestre == data_set_aux$mestre[i+1] &
-      station == data_set_aux$station[i+1]){
+      station == data_set_aux$station[i+1]) | is.na(data_set_aux$station[i+1]) ){
     if(data_set_aux$type[i] == "predator" & 
        data_set_aux$type[i+1] == "pray"){
       data_set_aux$diff_time[i] =  as.numeric(
