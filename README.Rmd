@@ -24,7 +24,7 @@ library(stringr)
 ## Data input
 
 ```{r}
-data_set <- read_rds("data/my_data_set_2.rds")
+data_set <- read_rds("data/my_data_set_novo.rds")
 data_set <- data_set |> 
   mutate(
     species = ifelse(species == "Dasypsu", "Dasypus", species),
@@ -44,6 +44,7 @@ data_set <- data_set |>
    date_time = ymd_hms(paste(date, time))
    )
 glimpse(data_set)
+data_set %>% pull(conservation_unit) %>% unique()
 ```
 
 # Quick view of 'capture' frequency 

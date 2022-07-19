@@ -1,5 +1,6 @@
 # Data input
-data_set <- readr::read_csv("data-raw/banco_de_dados_3.csv", na = 'NA') |>
+data_set <- readr::read_csv("data-raw/banco_de_dados_novo.csv", na = 'NA') |>
+  janitor::clean_names()
   tidyr::drop_na()
 
 # discriptive statistic
@@ -20,5 +21,5 @@ data_set <- data_set |>
   )
 
 # save my data
-readr::write_rds(data_set,"data/my_data_set_2.rds")
+readr::write_rds(data_set,"data/my_data_set_novo.rds")
 
