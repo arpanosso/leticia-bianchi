@@ -59,9 +59,6 @@ glimpse(data_set)
 #> $ year              <dbl> 2014, 2014, 2014, 2014, 2014, 2014, 2014, 2014, 2014~
 #> $ m_e               <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FAL~
 #> $ date_time         <dttm> 2014-11-05 00:02:29, 2014-10-18 00:12:24, 2014-12-0~
-data_set %>% pull(conservation_unit) %>% unique()
-#> [1] "Bebedouro"      "Jatai"          "Santa Barbara"  "Santa Rita"    
-#> [5] "Sertaozinho"    "Furnas"         "Porto Ferreira" "Vassununga"
 ```
 
 # Quick view of ‘capture’ frequency
@@ -195,12 +192,18 @@ data_set |>
 
 ``` r
 pray <- c("Dasypus", "Cabassous", "Euphractus")
+predators <- c("Cfamiliaris", "Lpardalis", "Cbrachyurus", "Pconcolor")
 data_set <- data_set |> 
   mutate(
     type = ifelse(species %in% pray, "pray", "predator")
   )
+```
+
+``` r
+data_set <- data_set |> 
+  filter(species != "Mtridactyla")   
 glimpse(data_set)
-#> Rows: 3,951
+#> Rows: 1,897
 #> Columns: 12
 #> $ conservation_unit <chr> "Bebedouro", "Bebedouro", "Bebedouro", "Bebedouro", ~
 #> $ species           <chr> "Dasypus", "Dasypus", "Dasypus", "Dasypus", "Dasypus~
@@ -241,4 +244,37 @@ for(i in 1:(nrow(data_set_aux)-1)){
       }
 }
 writexl::write_xlsx(data_set_aux,"data/banco_de_dados_novo.xlsx")
+```
+
+# Calculating the time without multiple predator effect.
+
+``` r
+# data_set_aux <- data_set |> 
+#   arrange(conservation_unit, mestre, station, date_time)
+# units <- data_set_aux |> pull(conservation_unit) |>  unique()
+# for(i in seq_along(units)){
+#   df <- data_set_aux |> 
+#     filter(conservation_unit == units[i]) 
+#   stations <-  df |>  pull(station) |>  unique()
+#   for(j in seq_along(stations)){
+#     dff <- df |> 
+#       filter(station == stations[j])
+#     # Agora vamos validar
+#     n_pray <- sum(dff |> pull(type) == "pray")
+#     n_pradator <- sum(dff |> pull(type) == "predator")
+#     if(n_pray != 0 & nrow(dff) >1){
+#       for(k in 2:nrow(dff)){
+#         if(dff$type[k] =="pray"){ # se verdadeiro eu valido
+#           cont = 0
+#           for(l in (k-1):2){
+#             if(dff$species[l] != dff$species[l-1]) cont = cont +1  # contar
+#           }
+#         }
+#       }
+# 
+#     }
+#   }
+# }
+
+# writexl::write_xlsx(data_set_aux,"data/banco_de_dados_novo_2.xlsx")
 ```
