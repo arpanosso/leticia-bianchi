@@ -249,32 +249,60 @@ writexl::write_xlsx(data_set_aux,"data/banco_de_dados_novo.xlsx")
 # Calculating the time without multiple predator effect.
 
 ``` r
-# data_set_aux <- data_set |> 
-#   arrange(conservation_unit, mestre, station, date_time)
-# units <- data_set_aux |> pull(conservation_unit) |>  unique()
-# for(i in seq_along(units)){
-#   df <- data_set_aux |> 
-#     filter(conservation_unit == units[i]) 
-#   stations <-  df |>  pull(station) |>  unique()
-#   for(j in seq_along(stations)){
-#     dff <- df |> 
-#       filter(station == stations[j])
-#     # Agora vamos validar
-#     n_pray <- sum(dff |> pull(type) == "pray")
-#     n_pradator <- sum(dff |> pull(type) == "predator")
-#     if(n_pray != 0 & nrow(dff) >1){
-#       for(k in 2:nrow(dff)){
-#         if(dff$type[k] =="pray"){ # se verdadeiro eu valido
-#           cont = 0
-#           for(l in (k-1):2){
-#             if(dff$species[l] != dff$species[l-1]) cont = cont +1  # contar
-#           }
-#         }
-#       }
-# 
-#     }
-#   }
-# }
-
-# writexl::write_xlsx(data_set_aux,"data/banco_de_dados_novo_2.xlsx")
+data_set_aux <- data_set |>
+  arrange(conservation_unit, mestre, station, date_time)
+units <- data_set_aux |> pull(conservation_unit) |>  unique()
+cont=0
+for(i in seq_along(units)){
+  df <- data_set_aux |>
+    filter(conservation_unit == units[i])
+  stations <-  df |>  pull(station) |>  unique()
+  for(j in seq_along(stations)){
+    dff <- df |>
+      filter(station == stations[j])
+    n_pray <- sum(dff |> pull(type) == "pray")
+    n_predator <- sum(dff |> pull(type) == "predator")
+    dff$flag <- NA
+    dff$diff_time <- NA
+    if((n_pray != 0 & nrow(dff) >1) & n_predator > 0){
+      for(k in 1:(nrow(dff)-1)){
+        if(dff$type[k]=="pray") cont=0
+        if((dff$type[k] == "predator" & dff$type[k+1] =="pray") & cont == 0){
+          cont = 0
+          dff$flag[k] <- paste("homogeneo", cont)
+          dff$diff_time[k] =  as.numeric(
+            difftime(dff$date_time[k+1], dff$date_time[k],units = "hours"))
+        }
+        if(dff$type[k] == "predator" & dff$type[k+1] =="predator"){
+          if(dff$species[k] != dff$species[k+1]) {
+            cont = cont + 1
+            dff$flag[k] <- paste("heterogeneo", cont)}
+        }
+      }
+      cont = 0
+    }
+    if(i == 1 & j == 1){
+      dff_final <- dff
+    }else{
+      dff_final <- rbind(dff_final, dff)
+    }
+  }
+}
+dff_final
+#> # A tibble: 1,897 x 14
+#>    conservation_un~ species station date       time     mestre   day month  year
+#>    <chr>            <chr>     <dbl> <date>     <time>   <lgl>  <dbl> <dbl> <dbl>
+#>  1 Bebedouro        Cfamil~     183 2014-10-20 11:14:46 FALSE     20    10  2014
+#>  2 Bebedouro        Cfamil~     183 2014-11-03 10:56:26 FALSE      3    11  2014
+#>  3 Bebedouro        Dasypus     183 2014-11-05 00:02:29 FALSE      5    11  2014
+#>  4 Bebedouro        Cfamil~     183 2014-12-03 12:02:55 FALSE      3    12  2014
+#>  5 Bebedouro        Dasypus     183 2014-12-04 04:00:20 FALSE      4    12  2014
+#>  6 Bebedouro        Dasypus     183 2014-12-07 03:33:39 FALSE      7    12  2014
+#>  7 Bebedouro        Dasypus     183 2014-12-11 21:10:36 FALSE     11    12  2014
+#>  8 Bebedouro        Dasypus     184 2014-10-17 21:48:32 FALSE     17    10  2014
+#>  9 Bebedouro        Dasypus     186 2014-10-17 22:26:24 FALSE     17    10  2014
+#> 10 Bebedouro        Dasypus     186 2014-10-18 00:12:24 FALSE     18    10  2014
+#> # ... with 1,887 more rows, and 5 more variables: m_e <lgl>, date_time <dttm>,
+#> #   type <chr>, flag <chr>, diff_time <dbl>
+writexl::write_xlsx(dff_final,"data/dff_final.xlsx")
 ```
